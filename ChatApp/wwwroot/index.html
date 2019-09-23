@@ -1,0 +1,351 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+
+    <title>Business Chat App</title>
+    <link href="/css/chat.css?rand=54548" rel="stylesheet" />
+</head>
+
+<body>
+    <!-- header -->
+    <header>
+        <nav class="bar bar-nav">
+            <h1 class="title">Welcome</h1>
+        </nav>
+    </header><!-- /header -->
+    <nav class="bar bar-tab bar-standard bar-header-secondary">
+        <span class="tab-item tab-item-small ">
+            <button id="btnHome" class="btn btn-link ui-btn ui-shadow ui-corner-all">
+                <span class="icon icon-home"></span>Home
+            </button>
+        </span>
+        <span id="btnUsers" class="tab-item tab-item-small">
+            <button class="btn btn-link ui-btn ui-shadow ui-corner-all">
+                <span class="icon icon-list"></span>Users
+            </button>
+        </span>
+        <span id="btnChats" class="tab-item tab-item-small">
+            <button class="btn btn-link ui-btn ui-shadow ui-corner-all">
+                <span class="icon icon-list"></span>Chats
+            </button>
+        </span>
+        <span id="btnChat" class="tab-item tab-item-small">
+            <button class="btn btn-link ui-btn ui-shadow ui-corner-all">
+                <span class="icon icon-list"></span>Chat
+            </button>
+        </span>
+        <span id="btnProfile" class="tab-item tab-item-small">
+            <button class="btn btn-link ui-btn ui-shadow ui-corner-all">
+                <span class="icon icon-person"></span>Profile
+            </button>
+        </span>
+        <span id="btnSettings" class="tab-item tab-item-small">
+            <button class="btn btn-link ui-btn ui-shadow ui-corner-all">
+                <span class="icon icon-gear"></span>Settings
+            </button>
+        </span>
+    </nav>
+    <div id="Home" class="content ui-content" role="main" data-role="content">
+        Welcome <span id="username"></span><br />
+        <button id="btnLogout" class="btn btn-link ui-btn ui-shadow ui-corner-all">
+            <span class="icon icon-gear"></span>Logout
+        </button>
+    </div>
+    <div id="Users" class="content ui-content" role="main" data-role="content">
+        <div>
+            <label for="UserSearch">Search</label>
+            <input type="text" name="UserSearch" id="UserSearch" />
+            <input type="submit" name="btnUserSearch" id="btnUserSearch" value="Search" />
+        </div>
+        <div>
+            <div id="UserList"></div>
+        </div>
+    </div>
+    <div id="Chats" class="content ui-content" role="main" data-role="content">
+        <div>
+            <div id="ChatList"></div>
+        </div>
+    </div>
+    <div id="Profile" class="content ui-content" role="main" data-role="content">
+    </div>
+    <div id="Settings" class="content ui-content" role="main" data-role="content">
+        <div>
+            <div id="SettingsList"></div>
+        </div>
+    </div>
+    <div id="entrance" class="content ui-content" role="main" data-role="content">
+        <label for="nick">Enter your nickname:</label>
+        <input type="text" id="nick" />
+        <button onclick="RegisterUser()">Continue</button>
+    </div>
+    <div id="Chat" class="Chat content ui-content" role="main" data-role="content">
+        <ul id="messages">
+            <li class="me">
+                <img src="http://mrg.bz/XduV5Q">
+                <div class="message">Rhoncus auctor placerat</div>
+            </li>
+
+            <li class="you">
+                <img src="http://mrg.bz/0BT5wd">
+                <div class="message">Sed aliquam Tortor scelerisque?</div>
+            </li>
+
+            <li class="me">
+                <img src="http://mrg.bz/XduV5Q">
+                <div class="message">
+                    Enim enim facilisis ac lorem
+                    pellentesque pulvinar rhoncus proin massa
+                </div>
+            </li>
+
+            <li class="you">
+                <img src="http://mrg.bz/0BT5wd">
+                <div class="message">Awesome :)</div>
+            </li>
+        </ul>
+       
+        <div>
+            <form id="frm-send-message" action="#">
+                <label for="message">Message:</label>
+                <input type="text" id="message" />
+                <input type="submit" id="send" value="Send" class="send" />
+            </form>
+            <div class="clear">
+            </div>
+            <ul></ul>
+        </div>
+    </div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aspnet-signalr/1.1.4/signalr.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js"></script>
+
+    <script>
+        var name = "";
+        var userid = 0;
+        var chatid = 0; // Active Chat
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chat")
+            .build();
+        connection.start().catch(err => console.error(err.toString()));
+
+
+        $(document).ready(function () {
+
+        });
+        function register(name, deviceid) {
+            if (name == null || name == "null" || name === undefined)
+            {
+                $(".content").hide();
+                $('#entrance').show();
+                return;
+            }
+            connection.invoke('Register', name, deviceid, deviceid);
+        }
+        $("#btnHome").on("click", function () {
+            $(".content").hide();
+            $("#Home").show();
+        });
+        $("#btnUsers").on("click", function () {
+            $(".content").hide();
+            $("#Users").show();
+        });
+        $("#btnChats").on("click", function () {
+            $(".content").hide();
+            $('#Chats').show();
+        });
+        $("#btnChat").on("click", function () {
+            $(".content").hide();
+            $('#Chat').show();
+        });
+        $("#btnProfile").on("click", function () {
+            $(".content").hide();
+            $("#Profile").show();
+        });
+        $("#btnSettings").on("click", function () {
+            $(".content").hide();
+            $('#Settings').show();
+
+        });
+        $("#btnLogout").on("click", function () {
+            $(".content").hide();
+            $('#entrance').show();
+        });
+        $("#btnUserSearch").on("click", function () {
+             connection.invoke('Users', $("#UserSearch").val());
+        });
+        $("#UserList").on("click", ".names", function (event) {
+            id = $(event.target).data("userid");
+            console.log("Click on user " + id);
+            // Done: Start chat with user
+            connection.invoke("StartChat", userid, id, 0);
+        });
+        $("#ChatList").on("click", ".chats", function (event) {
+            id = $(event.target).data("chatid");
+            console.log("Click on chat " + id);
+            // TODO: Get Messages for Chat
+            connection.invoke("StartChat", userid, 0, id);
+        });
+
+        // Display chat message recieved from server
+        connection.on('Send', (nick, forchatid, message) => {
+            if (chatid == forchatid) {
+                appendLine(nick, message);
+            }
+            // TODO: Store Message in storage for when user opens chat, increment unread messages
+        });
+        // Open chat 
+        connection.on('Chat', (jsonstr) => {
+            chatid = JSON.parse(jsonstr); 
+            $(".content").hide();
+            $("#Chat").show();
+            appendLine("System", "Connected to chat: "+chatid);
+        });
+        // Display list of Chats
+        connection.on('Chats', (list) => {
+            $("#ChatList").text("");
+            Chats = JSON.parse(list);
+            Chats.forEach(function (Chat) {
+                $("#ChatList").append("<div><img src='http://mrg.bz/XduV5Q'><span class='chats' data-chatid='" + Chat.ChatID + "'>" + Chat.UserName + "</span></div> ");
+            });
+            if (chatid == 0) {
+                if (Chats.length > 0) {
+                    chatid = Chats[0].ChatID;
+                }
+            }
+        });
+        // Display list of Users
+        connection.on('Users', (list) => {
+            $("#UserList").text("");
+            Users = JSON.parse(list);
+            Users.forEach(function (User) {           
+                $("#UserList").append("<div><img src='http://mrg.bz/XduV5Q'><span class='names' data-userid='"+User.ID+"'>" + User.UserName + "</span></div> ");
+            })
+        });
+        /*========== DEBUG =================*/
+        connection.on('ActiveUsers', (list) => {
+            $("#UserList").text("");
+            Users = JSON.parse(list);
+            Users.forEach(function (User) {           
+                $("#SettingsList").append("<div><img src='http://mrg.bz/XduV5Q'><span class='names' data-userid='"+User.ID+"'>" + User.UserName + "</span></div> ");
+            })
+        });
+        /*========== END DEBUG ============= */
+        // Startup, either after registration of after app start for already registered
+        connection.on('Registered', (jsonstr) => {
+            $(".content").hide();
+            $('#Chat').show();
+            json = JSON.parse(jsonstr);
+            name = json.UserName;
+            userid = json.UserID;
+            $("#username").text(name);
+            appendLine(name, "Registered as " + name + " ("+userid+")");
+            appendLine(name,"Server Debug: "+" U: " + name + " D:" + json.DeviceID + " S:" + json.Token);
+            localStorage.setItem("DeviceID", json.DeviceID);
+            localStorage.setItem("Token", json.Token);
+            localStorage.setItem("Username", json.UserName);
+        });
+        // When connected to server, if pre registered send registration link
+        connection.on('Connected', (jsonstr) => {
+            name = localStorage.getItem("Username");            
+            $(".content").hide();
+            $("#Home").show();
+            if (name !== undefined) {
+                $('#nick').val(name);
+                RegisterUser();
+            }
+        });
+
+        // Send message to server
+        // TODO: Convert to jQuery
+        document.getElementById('frm-send-message').addEventListener('submit', event => {
+            let message = $('#message').val();
+            let nick = name;
+            $('#message').val('');
+            connection.invoke('Send', nick, chatid, message);
+            event.preventDefault();
+        });
+
+        // Add line on chat screen for message recieved
+        // TODO: Convert to jQuery
+        function appendLine(nick, message, color) {
+            let nameElement = document.createElement('strong');
+            nameElement.innerText = `${nick}:`;
+
+            let msgElement = document.createElement('div');
+            msgElement.classList.add("message");
+            msgElement.innerText = ` ${message}`;
+
+            let imgElement = document.createElement('img');
+            imgElement.src = "http://mrg.bz/XduV5Q";
+
+            let li = document.createElement('li');
+            if (nick == name) {
+                li.classList.add("me");
+            } else {
+                li.classList.add("you");
+            }
+
+            li.appendChild(imgElement);
+            li.appendChild(msgElement);
+
+            $('#messages').append(li);
+            var offset = $('#frm-send-message').offset(); // Contains .top and .left
+            $('html, body').animate({
+                scrollTop: offset.top,
+                scrollLeft: offset.left
+            });
+
+        };
+
+        // Register new user 
+        function RegisterUser() {
+            var DeviceID = localStorage.getItem("DeviceID");
+            register($('#nick').val(), DeviceID);
+        }
+
+        var fingerprint = (function (window, screen, navigator) {
+
+            // https://github.com/darkskyapp/string-hash
+            function checksum(str) {
+                var hash = 5381,
+                    i = str.length;
+
+                while (i--) hash = (hash * 33) ^ str.charCodeAt(i);
+
+                return hash >>> 0;
+            }
+
+            // http://stackoverflow.com/a/4167870/1250044
+            function map(arr, fn) {
+                var i = 0, len = arr.length, ret = [];
+                while (i < len) {
+                    ret[i] = fn(arr[i++]);
+                }
+                return ret;
+            }
+
+            return checksum([
+                navigator.userAgent,
+                [screen.height, screen.width, screen.colorDepth].join('x'),
+                new Date().getTimezoneOffset(),
+                !!window.sessionStorage,
+                !!window.localStorage,
+                map(navigator.plugins, function (plugin) {
+                    return [
+                        plugin.name,
+                        plugin.description,
+                        map(plugin, function (mime) {
+                            return [mime.type, mime.suffixes].join('~');
+                        }).join(',')
+                    ].join("::");
+                }).join(';')
+            ].join('###'));
+
+        }(this, screen, navigator));
+
+        var DeviceID = fingerprint;
+    </script>
+</body>
+</html>

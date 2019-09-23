@@ -1,0 +1,280 @@
+/**
+ * Appcropolis Template: A HTML5 Chat Template Page 
+ * @copy Appcropolis LLC (c) 2011-2014. All rights reserved.
+ * @author sammiekiogora (support@appcropolis.com)
+ * @date 2014-10-07
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+ * SOFTWARE.
+ *
+ * License and legal information: 
+ *
+ * http://appcropolis.com/license/
+ * http://appcropolis.com/legal/
+ * http://appcropolis.com/privacy/
+ */
+
+/* HEADER */
+/* /HEADER */
+
+body {
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+    font-family: "Helvetica Neue",Helvetica,sans-serif;
+    font-size: 17px;
+    line-height: 21px;
+    color: #000;
+    background-color: #fff;
+}
+
+.title {
+    display: block;
+    width: 100%;
+    padding: 0;
+    margin: 0 -10px;
+    font-size: 17px;
+    font-weight: 500;
+    line-height: 44px;
+    color: #000;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.bar-tab {
+    bottom: 0px;
+    display: table;
+    width: 100%;
+    height: 50px;
+    padding: 0;
+    table-layout: fixed;
+    border-top: 1px solid #ddd;
+    border-bottom: 0;
+}
+
+.bar-tab .tab-item {
+    display: table-cell;
+    width: 1%;
+    height: 50px;
+    color: #929292;
+    text-align: center;
+    vertical-align: middle;
+}
+
+
+.tab-item-small button.btn-link {
+    top: 0px;
+    width: 90%;
+    font-size: 16px;
+    text-align: left;
+}
+
+.bar .btn-link {
+    top: 0px;
+    padding: 0;
+    font-size: 16px;
+    line-height: 44px;
+    color: #428bca;
+    border: 0;
+}
+
+.bar .btn {
+    position: relative;
+    top: 7px;
+    z-index: 20;
+    padding: 0px 12px 0px;
+    margin-top: 0px;
+    font-weight: 400;
+}
+
+
+button.ui-btn, .ui-controlgroup-controls button.ui-btn-icon-notext {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 100%;
+}
+
+.btn {
+    position: relative;
+    display: inline-block;
+    padding: 6px 8px 7px;
+    margin-bottom: 0px;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1;
+    color: #333;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: top;
+    cursor: pointer;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+.ui-btn {
+    font-size: 16px;
+    margin: 0;
+    padding: .7em 1em;
+    position: relative;
+    text-align: center;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+
+
+/* SUBHEADER */
+
+.bar-header-secondary {
+    padding-left: 2px; 
+    padding-right: 2px;
+    height: 44px;
+    }
+
+.bar-header-secondary .tab-item {
+    height: 44px;
+    }
+    
+.tab-item-small button.btn-link {
+    top: 0; 
+    width: 90%; 
+    font-size: 12px;
+    text-align: left;
+    }
+    
+.tab-item-small button.btn-link .icon {
+    font-size: 18px;
+    vertical-align: middle;
+    margin-top: -3px;
+    }
+    
+/* /SUBHEADER */
+
+/* CONTENT */
+
+.content {
+    background: linear-gradient(145deg, #dddddd, #ffffff);
+    margin: 15px;
+    padding: 15px;
+    min-height: 75%;
+    display:none;
+}
+
+.Chat {
+    font-size:14px;
+    font-weight:normal;
+    min-width:90% ;
+
+    margin: auto auto; 
+    line-height:18px;
+}
+
+
+.Chat ul {
+    width: 95%;
+}
+
+
+.Chat ul li {
+    width: 100%;
+    list-style-type: none;
+    margin: 5px 0 5px 0;
+    display: inline-block;
+}
+
+.Chat ul li img {
+    width: 64px;
+    height: 64px;
+    float: left;
+    border-radius: 50%;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, .4);
+}
+#UserList img {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, .4);
+}
+#UserList .names {
+    border-radius: 15px;
+    padding-left: 90px;
+}
+
+.Chat ul .me img {
+    float: right;
+}
+
+
+.Chat ul li .message {
+    background: #fff;
+    margin-left: 90px;
+    position: relative;
+    min-height: 55px;
+    margin-top: 5px;
+    padding: 10px 15px;
+    box-sizing: border-box;
+    border-radius: 15px;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.15);
+}
+
+.Chat ul .me .message {
+    border-top-right-radius: 0px;
+    margin-right: 90px;
+    margin-left: 0;
+}
+
+.Chat ul .you .message {
+    border-top-left-radius: 0px;
+    background: #daffb1;
+}
+
+
+.Chat ul .me .message:before,
+.Chat ul .you .message:before {
+    content: "";
+    width: 0px;
+    height: 0px;
+    position: absolute;
+    top: 0;
+}
+
+
+.Chat ul .me .message:before {
+    right: 0;
+    margin-right: -15px;
+    border-top: 15px solid #ffffff;
+    border-right: 15px solid transparent;
+}
+
+
+.Chat ul .you .message:before {
+    left:0;
+    margin-left:-15px;
+    border-top:15px solid #daffb1;
+    border-left:15px solid transparent;
+    }
+
+/* /CONTENT */
+
+/* FOOTER */
+/* /FOOTER */
+
+
+
