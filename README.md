@@ -1,5 +1,4 @@
 # ChatApp-SignalR
-# ChatApp-SignalR
 Chat Application using C# and SignalR (Javascript client)
 
 An attempt to create a Whatsapp chat clone for use in businesses.
