@@ -43,7 +43,7 @@ Outstanding on ChatHub
 - Remove Error Handling
 
 Outstanding on Client
-- Save Chats/Messages Locally (SQLLite?)
+- Save Chats/Messages Locally (IndexedDB?)
 - Error Handling
 - Reconnect when connection lost (Maybe display connection status)
 - Change Header based on Tab (and/or active chat)
