@@ -7,7 +7,9 @@ Data is stored in SQL Server database.
 
 
 (** means not yet implemented)
+
 **ChatHub methods**
+
 Register(username, device) ** Add password
 - If username already exists gets id 
 - Returns OK and registers used in Database
