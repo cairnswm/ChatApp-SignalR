@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\cairn\\source\\repos\\ChatApp\\ChatApp\\ChatApp.csproj": {}
+    "C:\\Users\\cairn\\source\\repos\\ChatApp-SignalR\\ChatApp\\ChatApp.csproj": {}
   },
   "projects": {
-    "C:\\Users\\cairn\\source\\repos\\ChatApp\\ChatApp\\ChatApp.csproj": {
+    "C:\\Users\\cairn\\source\\repos\\ChatApp-SignalR\\ChatApp\\ChatApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\cairn\\source\\repos\\ChatApp\\ChatApp\\ChatApp.csproj",
+        "projectUniqueName": "C:\\Users\\cairn\\source\\repos\\ChatApp-SignalR\\ChatApp\\ChatApp.csproj",
         "projectName": "ChatApp",
-        "projectPath": "C:\\Users\\cairn\\source\\repos\\ChatApp\\ChatApp\\ChatApp.csproj",
+        "projectPath": "C:\\Users\\cairn\\source\\repos\\ChatApp-SignalR\\ChatApp\\ChatApp.csproj",
         "packagesPath": "C:\\Users\\cairn\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\cairn\\source\\repos\\ChatApp\\ChatApp\\obj\\",
+        "outputPath": "C:\\Users\\cairn\\source\\repos\\ChatApp-SignalR\\ChatApp\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Microsoft\\Xamarin\\NuGet\\",

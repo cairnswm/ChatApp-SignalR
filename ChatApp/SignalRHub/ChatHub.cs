@@ -11,21 +11,32 @@ namespace ChatApp.SignalRHub
 {
     public class ChatHub : Hub
     {
+        /*         
+        Register(username, password)
+        - If username already exists gets id 
+        - Returns OK and registers used in Database
+        - returns userid
+        Connect(username, chat)
+        - Returns Chat list, messages for current chat from database (Register, both empty) 
+        ** Then per chat sends messages from database
+        StartChat(user1,user2,chatid)
+        - Create new chat saved into database if no chat between these users
+        - Returns Chat id 
+        Send(chatid,message)
+        - All members of chat loggedin Returns Chatid, username, message
+        - All members of chat NOT loggedin saves Chatid, username, message into database
+        GetActive()
+        - Returns all currently connected users
+        Users(Search)
+        - Returns all users containing the search string
+        Chats(userid)
+        - Returns all chats user is currently connected to
+        **NewGroupChat([usernames]) - TODO Implement NewGroupChat
+        - Create new chat saved into database
+        - Returns Chat id (saved to localstorage)
+        */
 
-        // Register(username, password)
-        //    Returns OK and registers used in Database
-        // Connect(username, chat)
-        //    Returns Chat list, messages for current chat from database (Register, both empty) 
-        //    Then per chat sends messages from database
-        // NewUserChat(username)
-        //    Create new chat saved into database
-        //    Returns Chat id (saved to localstorage) 
-        // NewGroupChat([usernames])
-        //    Create new chat saved into database
-        //    Returns Chat id (saved to localstorage)
-        // SendMessage(chatid,message)
-        //    All members of chat loggedin Returns Chatid, username, message
-        //    All members of chat NOT loggedin saves Chatid, username, message into database
+
 
         readonly IUserDAL _User;
         readonly IChatDAL _Chat;
@@ -42,6 +53,7 @@ namespace ChatApp.SignalRHub
 
         public async Task Send(string nick, int chatid, string message)
         {
+            // TODO: verify user is part of chat
             // Save Message to DB
             _Chat.SaveMessage(chatid, nick, message);
             // Send to everyone in Chat Group
@@ -95,6 +107,7 @@ namespace ChatApp.SignalRHub
             {
                 DTO = _Chat.StartChat(userid, userid2);
                 // Add users to Group
+                // TODO Verify users are connected before adding to group
                 await Groups.AddToGroupAsync(_Users["User-" + userid], "Chat-" + Convert.ToInt32(DTO));
                 await Groups.AddToGroupAsync(_Users["User-" + userid2], "Chat-" + Convert.ToInt32(DTO));
             }
@@ -125,17 +138,17 @@ namespace ChatApp.SignalRHub
 
 
         #region HubMethods
-        public Task SendMessage(string user, string message)
+        private Task SendMessage(string user, string message)
         {
             return Clients.All.SendAsync("ReceiveMessage", user, message);
         }
 
-        public Task SendMessageToCaller(string message, string messageType = "ReceiveMessage")
+        private Task SendMessageToCaller(string message, string messageType = "ReceiveMessage")
         {
             return Clients.Caller.SendAsync(messageType, message);
         }
 
-        public Task SendMessageToGroup(string message)
+        private Task SendMessageToGroup(string message)
         {
             return Clients.Group("SignalR Users").SendAsync("ReceiveMessage", message);
         }
@@ -143,7 +156,7 @@ namespace ChatApp.SignalRHub
 
         #region HubMethodName
         [HubMethodName("SendMessageToUser")]
-        public Task DirectMessage(string user, string message)
+        private Task DirectMessage(string user, string message)
         {
             return Clients.User(user).SendAsync("ReceiveMessage", message);
         }
@@ -171,15 +184,18 @@ namespace ChatApp.SignalRHub
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, "SignalR Users");
             string userstr = _Contexts[Context.ConnectionId];
             int userid = Convert.ToInt32(userstr);
+
+            // Remove User from Group for each Chat 
             var DTO = _Chat.GetChats(userid);
-            foreach (var chat in DTO) // Remove User from Group for each Chat 
+            foreach (var chat in DTO) 
             {
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, "Chat-" + Convert.ToInt32(chat.ChatID));
             }
-            _Users.Remove(userstr); // Clear user from Active User Maps
+            // Clear user from Active User Maps
+            _Users.Remove(userstr);
             _Contexts.Remove(Context.ConnectionId);
-            // TODO: Remove from Sessions
-            bool Removed = _User.RemoveActive(userid);
+            // Done: Remove from Sessions
+            _User.RemoveActive(userid);
             await base.OnDisconnectedAsync(exception);
         }
         #endregion
