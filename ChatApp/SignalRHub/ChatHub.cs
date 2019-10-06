@@ -18,7 +18,7 @@ namespace ChatApp.SignalRHub
         - returns userid
         Connect(username, chat)
         - Returns Chat list, messages for current chat from database (Register, both empty) 
-        ** Then per chat sends messages from database
+        ** TODO: Then per chat sends messages from database
         StartChat(user1,user2,chatid)
         - Create new chat saved into database if no chat between these users
         - Returns Chat id 
@@ -31,48 +31,54 @@ namespace ChatApp.SignalRHub
         - Returns all users containing the search string
         Chats(userid)
         - Returns all chats user is currently connected to
-        **NewGroupChat([usernames]) - TODO Implement NewGroupChat
+        ** NewGroupChat([usernames]) - TODO Implement NewGroupChat
         - Create new chat saved into database
         - Returns Chat id (saved to localstorage)
         */
 
+        /*
+        * Using the SignalR goups per chat to send messages to the chats
+        * Uses in-memory Lists to store active users (TODO:Future: Should this be in cache instead?)
+        * 
+        * 
+        */
 
 
-        readonly IUserDAL _User;
-        readonly IChatDAL _Chat;
-        readonly ApplicationDbContext _context;
-        private Dictionary<string, string> _Users = new Dictionary<string, string>();
-        private Dictionary<string, string> _Contexts = new Dictionary<string, string>();
 
-        public ChatHub(ApplicationDbContext Context, IUserDAL userDAL, IChatDAL chatDAL)
+        readonly IUserDAL userData;
+        readonly IChatDAL chatData;
+        private Dictionary<string, string> usersList = new Dictionary<string, string>(); // Store sessions indexed by Username [UserName, SignalR context]
+        private Dictionary<string, string> usersContext = new Dictionary<string, string>(); // Store sessions indexed by Context [ Context, Username]
+
+        public ChatHub(IUserDAL userDAL, IChatDAL chatDAL)
         {
-            _context = Context;
-            _User = userDAL;
-            _Chat = chatDAL;
+            userData = userDAL;
+            chatData = chatDAL;
         }
 
         public async Task Send(string nick, int chatid, string message)
         {
             // TODO: verify user is part of chat
             // Save Message to DB
-            _Chat.SaveMessage(chatid, nick, message);
+            chatData.SaveMessage(chatid, nick, message);
             // Send to everyone in Chat Group
             await Clients.Group("Chat-"+chatid).SendAsync("Send", nick, chatid, message);
-            _User.UpdateLastActive();
+            userData.UpdateLastActive();
 
         }
 
         // Registers a user to use the system. 
         public async Task Register(string nick, string deviceid, string devicename)
         {
-            var DTO = await _User.UserRegistration(nick, deviceid, devicename);
+            // TODO: If new Device form exisitng user send messages from last X time
+            var DTO = await userData.UserRegistration(nick, deviceid, devicename);
 
             var serializerSettings = new JsonSerializerSettings { PreserveReferencesHandling = PreserveReferencesHandling.Objects };
             var json = JsonConvert.SerializeObject(DTO, Formatting.Indented, serializerSettings);
 
             await Clients.Caller.SendAsync("Registered", json);
-            _Users.Add("User-" + DTO.UserID, Context.ConnectionId);
-            _Contexts.Add(Context.ConnectionId,"User-" + DTO.UserID);
+            usersList.Add("User-" + DTO.UserID, Context.ConnectionId);
+            usersContext.Add(Context.ConnectionId,"User-" + DTO.UserID);
 
             await Chats(DTO.UserID);
         }
@@ -80,7 +86,7 @@ namespace ChatApp.SignalRHub
         // Search User List
         public async Task GetActive()
         {
-            var DTO = _Users;
+            var DTO = usersList;
 
             var serializerSettings = new JsonSerializerSettings { PreserveReferencesHandling = PreserveReferencesHandling.Objects };
             var json = JsonConvert.SerializeObject(DTO, Formatting.Indented, serializerSettings);
@@ -91,7 +97,7 @@ namespace ChatApp.SignalRHub
         // Search User List
         public async Task Users(string search)
         {
-            var DTO = _User.GetChatUsers(search);
+            var DTO = userData.GetChatUsers(search);
 
             var serializerSettings = new JsonSerializerSettings { PreserveReferencesHandling = PreserveReferencesHandling.Objects };
             var json = JsonConvert.SerializeObject(DTO, Formatting.Indented, serializerSettings);
@@ -105,11 +111,17 @@ namespace ChatApp.SignalRHub
             int DTO;
             if (chatid == 0) // Starting a new chat
             {
-                DTO = _Chat.StartChat(userid, userid2);
-                // Add users to Group
-                // TODO Verify users are connected before adding to group
-                await Groups.AddToGroupAsync(_Users["User-" + userid], "Chat-" + Convert.ToInt32(DTO));
-                await Groups.AddToGroupAsync(_Users["User-" + userid2], "Chat-" + Convert.ToInt32(DTO));
+                DTO = chatData.StartChat(userid, userid2);
+                // Add users to SignalR Group
+                // Done Verify users are connected before adding to group
+                if (!usersList.ContainsKey("User-" + userid))
+                {
+                    await Groups.AddToGroupAsync(usersList["User-" + userid], "Chat-" + Convert.ToInt32(DTO));
+                }
+                if (!usersList.ContainsKey("User-" + userid2))
+                {
+                    await Groups.AddToGroupAsync(usersList["User-" + userid2], "Chat-" + Convert.ToInt32(DTO));
+                }
             }
             else // Chat exists
             {
@@ -122,12 +134,13 @@ namespace ChatApp.SignalRHub
         }
 
         // Get List of Chats
-        public async Task Chats(int userid)
+        // Called internally when users connect
+        private async Task Chats(int userid)
         {
-            var DTO = _Chat.GetChats(userid);
+            var DTO = chatData.GetChats(userid);
             foreach(var chat in DTO) // Add user to Group for each Chat - ensure immediate message sending
             {
-                await Groups.AddToGroupAsync(_Users["User-" + userid], "Chat-" + Convert.ToInt32(chat.ChatID));
+                await Groups.AddToGroupAsync(usersList["User-" + userid], "Chat-" + Convert.ToInt32(chat.ChatID));
             }
 
             var serializerSettings = new JsonSerializerSettings { PreserveReferencesHandling = PreserveReferencesHandling.Objects };
@@ -172,7 +185,7 @@ namespace ChatApp.SignalRHub
         #region OnConnectedAsync
         public override async Task OnConnectedAsync()
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, "SignalR Users");
+            await Groups.AddToGroupAsync(Context.ConnectionId, "SignalR Users"); // List of all connected users - for real time broadcasts (TODO Implement RealTime broadcasts)
             await base.OnConnectedAsync();
             await SendMessageToCaller("Connected","Connected");
         }
@@ -182,20 +195,20 @@ namespace ChatApp.SignalRHub
         public override async Task OnDisconnectedAsync(Exception exception)
         {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, "SignalR Users");
-            string userstr = _Contexts[Context.ConnectionId];
+            string userstr = usersContext[Context.ConnectionId];
             int userid = Convert.ToInt32(userstr);
 
             // Remove User from Group for each Chat 
-            var DTO = _Chat.GetChats(userid);
+            var DTO = chatData.GetChats(userid);
             foreach (var chat in DTO) 
             {
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, "Chat-" + Convert.ToInt32(chat.ChatID));
             }
             // Clear user from Active User Maps
-            _Users.Remove(userstr);
-            _Contexts.Remove(Context.ConnectionId);
+            usersList.Remove(userstr);
+            usersContext.Remove(Context.ConnectionId);
             // Done: Remove from Sessions
-            _User.RemoveActive(userid);
+            userData.RemoveActive(userid);
             await base.OnDisconnectedAsync(exception);
         }
         #endregion

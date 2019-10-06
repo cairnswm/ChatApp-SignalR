@@ -17,47 +17,48 @@ namespace ChatApp.DataAccess
     }
     public class UserDAL : IUserDAL
     {
-        ApplicationDbContext _context;
+        ApplicationDbContext context;
 
-        public UserDAL(ApplicationDbContext Context)
+        public UserDAL(ApplicationDbContext DBContext)
         {
-            _context = Context;
+            context = DBContext;
         }
 
         public List<User> GetChatUsers(string name)
         {
+            // If blank name sent return all users else search
             if (name == null) { name = ""; }
             if (name.Length > 0)
             {
-                return _context.ChatUsers.Where(a => a.UserName.Contains(name) || a.FirstName.Contains(name) || a.Surname.Contains(name)).ToList();
+                return context.ChatUsers.Where(a => a.UserName.Contains(name) || a.FirstName.Contains(name) || a.Surname.Contains(name)).ToList();
             }
             else
             {
-                return _context.ChatUsers.ToList();
+                return context.ChatUsers.ToList();
             }
         }
 
         public bool UpdateLastActive()
         {
             // Done: Update All Users with Record in Session to Now
-            var ActiveUsers = _context.UserSessions.Join(_context.UserDevice, US => new { US.DeviceID, US.UserID }, U => new { U.DeviceID, U.UserID }, (US, U) => new { UserDevice = U, UserSession = US }).Select(q => q.UserDevice).ToList();
+            var ActiveUsers = context.UserSessions.Join(context.UserDevice, US => new { US.DeviceID, US.UserID }, U => new { U.DeviceID, U.UserID }, (US, U) => new { UserDevice = U, UserSession = US }).Select(q => q.UserDevice).ToList();
             foreach (UserDevice US in ActiveUsers)
             {
                 US.LastSeen = DateTime.Now;
             }
-            _context.SaveChanges();
+            context.SaveChanges();
             return true;
         }
 
         public bool RemoveActive(int UserID)
         {
-            List<UserSession> items = _context.UserSessions.Where(U => U.UserID == UserID).ToList();
+            List<UserSession> items = context.UserSessions.Where(U => U.UserID == UserID).ToList();
             foreach(UserSession item in items)
             {
-                _context.UserSessions.Remove(item);
+                context.UserSessions.Remove(item);
 
             }
-            _context.SaveChanges();
+            context.SaveChanges();
             return true;
         }
 
@@ -66,20 +67,20 @@ namespace ChatApp.DataAccess
             ValidRegistration reg = new ValidRegistration();
 
             // Check if user Exists // If Not Create
-            User chatuser = _context.ChatUsers.FirstOrDefault(e => e.UserName == Username);
+            User chatuser = context.ChatUsers.FirstOrDefault(e => e.UserName == Username);
             if (chatuser == null)            
             {
                 chatuser = new User();
                 chatuser.UserName = Username;
-                _context.ChatUsers.Add(chatuser);                
+                context.ChatUsers.Add(chatuser);                
             }
 
             // Check if Device/User is registered, else create
-            UserDevice UD = _context.UserDevice.FirstOrDefault(e => e.UserName == Username && e.DeviceID == DeviceID);
+            UserDevice UD = context.UserDevice.FirstOrDefault(e => e.UserName == Username && e.DeviceID == DeviceID);
             if (UD == null)
             {
                 // Check if Device was used previously, register to new user
-                UD = _context.UserDevice.FirstOrDefault(e => e.DeviceID == DeviceID);
+                UD = context.UserDevice.FirstOrDefault(e => e.DeviceID == DeviceID);
                 UserDevice UD2 = new UserDevice();
                 UD2.UserName = Username;
                 if (UD == null)
@@ -91,8 +92,8 @@ namespace ChatApp.DataAccess
                     UD2.DeviceID = DeviceID;
                 }
                 UD2.DeviceName = UD2.DeviceID;
-                _context.UserDevice.Add(UD2);
-                await _context.SaveChangesAsync();
+                context.UserDevice.Add(UD2);
+                await context.SaveChangesAsync();
                 UD = UD2;
             }
 
@@ -101,8 +102,8 @@ namespace ChatApp.DataAccess
             US.UserName = Username;
             US.DeviceID = UD.DeviceID;
             US.SessionID = Guid.NewGuid().ToString();
-            _context.UserSessions.Add(US);
-            await _context.SaveChangesAsync();
+            context.UserSessions.Add(US);
+            await context.SaveChangesAsync();
 
             // Return Details
             reg.UserName = Username;

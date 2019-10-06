@@ -16,8 +16,6 @@ C:\Users\cairn\source\repos\ChatApp-SignalR\ChatApp\bin\Debug\netcoreapp2.1\Chat
 C:\Users\cairn\source\repos\ChatApp-SignalR\ChatApp\bin\Debug\netcoreapp2.1\ChatApp.runtimeconfig.dev.json
 C:\Users\cairn\source\repos\ChatApp-SignalR\ChatApp\bin\Debug\netcoreapp2.1\ChatApp.dll
 C:\Users\cairn\source\repos\ChatApp-SignalR\ChatApp\bin\Debug\netcoreapp2.1\ChatApp.pdb
-C:\Users\cairn\source\repos\ChatApp-SignalR\ChatApp\obj\Debug\netcoreapp2.1\ChatApp.csprojAssemblyReference.cache
-C:\Users\cairn\source\repos\ChatApp-SignalR\ChatApp\obj\Debug\netcoreapp2.1\ChatApp.csproj.CoreCompileInputs.cache
 C:\Users\cairn\source\repos\ChatApp-SignalR\ChatApp\obj\Debug\netcoreapp2.1\ChatApp.RazorAssemblyInfo.cache
 C:\Users\cairn\source\repos\ChatApp-SignalR\ChatApp\obj\Debug\netcoreapp2.1\ChatApp.RazorAssemblyInfo.cs
 C:\Users\cairn\source\repos\ChatApp-SignalR\ChatApp\obj\Debug\netcoreapp2.1\ChatApp.AssemblyInfoInputs.cache
@@ -25,3 +23,7 @@ C:\Users\cairn\source\repos\ChatApp-SignalR\ChatApp\obj\Debug\netcoreapp2.1\Chat
 C:\Users\cairn\source\repos\ChatApp-SignalR\ChatApp\obj\Debug\netcoreapp2.1\ChatApp.RazorTargetAssemblyInfo.cache
 C:\Users\cairn\source\repos\ChatApp-SignalR\ChatApp\obj\Debug\netcoreapp2.1\ChatApp.dll
 C:\Users\cairn\source\repos\ChatApp-SignalR\ChatApp\obj\Debug\netcoreapp2.1\ChatApp.pdb
+C:\Users\cairn\source\repos\ChatApp-SignalR\ChatApp\bin\Debug\netcoreapp2.1\appsettings.Development.json
+C:\Users\cairn\source\repos\ChatApp-SignalR\ChatApp\bin\Debug\netcoreapp2.1\appsettings.json
+C:\Users\cairn\source\repos\ChatApp-SignalR\ChatApp\bin\Debug\netcoreapp2.1\Properties\launchSettings.json
+C:\Users\cairn\source\repos\ChatApp-SignalR\ChatApp\obj\Debug\netcoreapp2.1\ChatApp.csprojAssemblyReference.cache
