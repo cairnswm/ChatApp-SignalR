@@ -26,4 +26,3 @@ C:\Users\cairn\source\repos\ChatApp-SignalR\ChatApp\obj\Debug\netcoreapp2.1\Chat
 C:\Users\cairn\source\repos\ChatApp-SignalR\ChatApp\bin\Debug\netcoreapp2.1\appsettings.Development.json
 C:\Users\cairn\source\repos\ChatApp-SignalR\ChatApp\bin\Debug\netcoreapp2.1\appsettings.json
 C:\Users\cairn\source\repos\ChatApp-SignalR\ChatApp\bin\Debug\netcoreapp2.1\Properties\launchSettings.json
-C:\Users\cairn\source\repos\ChatApp-SignalR\ChatApp\obj\Debug\netcoreapp2.1\ChatApp.csprojAssemblyReference.cache

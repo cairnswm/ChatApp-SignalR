@@ -55,7 +55,7 @@ namespace ChatApp.DataAccess
             msg.FromUserName = userName;
             msg.Text = Text;
             await context.Messages.AddAsync(msg);
-            context.SaveChangesAsync();
+            await context.SaveChangesAsync();
             return msg.ID;
         }
 

@@ -26,9 +26,10 @@ namespace ChatApp.Controllers
 
         // GET: api/Users
         [HttpGet]
-        public IEnumerable<User> GetChatUsers(string name)
+        public async Task<IEnumerable<User>> GetChatUsers(string name)
         {
-            return _DAL.GetChatUsers(name);
+            List<User> users = await _DAL.GetChatUsers(name);
+            return users ;
         }
 
         // GET: api/Users/5
