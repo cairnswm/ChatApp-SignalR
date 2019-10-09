@@ -5,15 +5,16 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace ChatApp.DataAccess
 {
     public interface IUserDAL
     {
         Task<ValidRegistration> UserRegistration(string Username, string DeviceID, string Device);
-        List<User> GetChatUsers(string name);
-        bool UpdateLastActive();
-        bool RemoveActive(int UserID);
+        Task<List<User>> GetChatUsers(string name);
+        Task<bool> UpdateLastActive();
+        Task<bool> RemoveActive(int UserID);
     }
     public class UserDAL : IUserDAL
     {
@@ -24,41 +25,41 @@ namespace ChatApp.DataAccess
             context = DBContext;
         }
 
-        public List<User> GetChatUsers(string name)
+        public async Task<List<User>> GetChatUsers(string name)
         {
             // If blank name sent return all users else search
             if (name == null) { name = ""; }
             if (name.Length > 0)
             {
-                return context.ChatUsers.Where(a => a.UserName.Contains(name) || a.FirstName.Contains(name) || a.Surname.Contains(name)).ToList();
+                return await context.ChatUsers.Where(a => a.UserName.Contains(name) || a.FirstName.Contains(name) || a.Surname.Contains(name)).ToListAsync();
             }
             else
             {
-                return context.ChatUsers.ToList();
+                return await context.ChatUsers.ToListAsync();
             }
         }
 
-        public bool UpdateLastActive()
+        public async Task<bool> UpdateLastActive()
         {
             // Done: Update All Users with Record in Session to Now
-            var ActiveUsers = context.UserSessions.Join(context.UserDevice, US => new { US.DeviceID, US.UserID }, U => new { U.DeviceID, U.UserID }, (US, U) => new { UserDevice = U, UserSession = US }).Select(q => q.UserDevice).ToList();
+            var ActiveUsers = await context.UserSessions.Join(context.UserDevice, US => new { US.DeviceID, US.UserID }, U => new { U.DeviceID, U.UserID }, (US, U) => new { UserDevice = U, UserSession = US }).Select(q => q.UserDevice).ToListAsync();
             foreach (UserDevice US in ActiveUsers)
             {
                 US.LastSeen = DateTime.Now;
+                context.Entry(US).State = EntityState.Modified;
             }
-            context.SaveChanges();
+            await context.SaveChangesAsync();
             return true;
         }
 
-        public bool RemoveActive(int UserID)
+        public async Task<bool> RemoveActive(int UserID)
         {
-            List<UserSession> items = context.UserSessions.Where(U => U.UserID == UserID).ToList();
+            List<UserSession> items = await context.UserSessions.Where(U => U.UserID == UserID).ToListAsync();
             foreach(UserSession item in items)
             {
                 context.UserSessions.Remove(item);
-
             }
-            context.SaveChanges();
+            await context.SaveChangesAsync();
             return true;
         }
 
@@ -110,6 +111,7 @@ namespace ChatApp.DataAccess
             reg.DeviceID = UD.DeviceID;
             reg.Token = US.SessionID;
             reg.UserID = chatuser.ID;
+            reg.LastSeen = UD.LastSeen;
             return reg;
         }
     }

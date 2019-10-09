@@ -13,6 +13,7 @@ namespace ChatApp.Models
         public int UserID { get; set; }
         public string DeviceID { get; set; }
         public string Token { get; set; }
+        public DateTime LastSeen { get; set; }
         public ValidRegistration()
         {
             Status = "New";

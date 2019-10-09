@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using ChatApp.Models;
 
 namespace ChatApp.SignalRHub
 {
@@ -60,17 +61,17 @@ namespace ChatApp.SignalRHub
         {
             // TODO: verify user is part of chat
             // Save Message to DB
-            chatData.SaveMessage(chatid, nick, message);
+            await chatData.SaveMessage(chatid, nick, message);
             // Send to everyone in Chat Group
             await Clients.Group("Chat-"+chatid).SendAsync("Send", nick, chatid, message);
-            userData.UpdateLastActive();
+            await userData.UpdateLastActive();
 
         }
 
         // Registers a user to use the system. 
         public async Task Register(string nick, string deviceid, string devicename)
         {
-            // TODO: If new Device form exisitng user send messages from last X time
+            // TODO: If new Device form existing user send messages from last X time
             var DTO = await userData.UserRegistration(nick, deviceid, devicename);
 
             var serializerSettings = new JsonSerializerSettings { PreserveReferencesHandling = PreserveReferencesHandling.Objects };
@@ -80,7 +81,16 @@ namespace ChatApp.SignalRHub
             usersList.Add("User-" + DTO.UserID, Context.ConnectionId);
             usersContext.Add(Context.ConnectionId,"User-" + DTO.UserID);
 
-            await Chats(DTO.UserID);
+            List<Models.UserChats> ChatList = await Chats(DTO.UserID);            
+            foreach (Models.UserChats chat in ChatList)
+            {
+                // TODO: Per chat send new messages since last accessed
+                List<Message> messages = await chatData.GetChatMessagesSince(chat.ChatID, DTO.LastSeen);
+                await Clients.Caller.SendAsync("MessageList", chat.ChatID, messages);
+            }
+
+            // No need to update lastSeen as this occurs when a message is sent/recieved and/or disconnected
+            // TODO: Update UserDevice Last Seen
         }
 
         // Search User List
@@ -111,7 +121,7 @@ namespace ChatApp.SignalRHub
             int DTO;
             if (chatid == 0) // Starting a new chat
             {
-                DTO = chatData.StartChat(userid, userid2);
+                DTO = await chatData.StartChat(userid, userid2);
                 // Add users to SignalR Group
                 // Done Verify users are connected before adding to group
                 if (!usersList.ContainsKey("User-" + userid))
@@ -135,9 +145,9 @@ namespace ChatApp.SignalRHub
 
         // Get List of Chats
         // Called internally when users connect
-        private async Task Chats(int userid)
+        private async Task<List<Models.UserChats>> Chats(int userid)
         {
-            var DTO = chatData.GetChats(userid);
+            List<UserChats> DTO = await chatData.GetChats(userid);
             foreach(var chat in DTO) // Add user to Group for each Chat - ensure immediate message sending
             {
                 await Groups.AddToGroupAsync(usersList["User-" + userid], "Chat-" + Convert.ToInt32(chat.ChatID));
@@ -147,6 +157,8 @@ namespace ChatApp.SignalRHub
             var json = JsonConvert.SerializeObject(DTO, Formatting.Indented, serializerSettings);
 
             await Clients.Caller.SendAsync("Chats", json);
+
+            return DTO;
         }
 
 
@@ -199,7 +211,7 @@ namespace ChatApp.SignalRHub
             int userid = Convert.ToInt32(userstr);
 
             // Remove User from Group for each Chat 
-            var DTO = chatData.GetChats(userid);
+            List<UserChats> DTO = await chatData.GetChats(userid);
             foreach (var chat in DTO) 
             {
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, "Chat-" + Convert.ToInt32(chat.ChatID));
@@ -208,7 +220,7 @@ namespace ChatApp.SignalRHub
             usersList.Remove(userstr);
             usersContext.Remove(Context.ConnectionId);
             // Done: Remove from Sessions
-            userData.RemoveActive(userid);
+            await userData.RemoveActive(userid);
             await base.OnDisconnectedAsync(exception);
         }
         #endregion

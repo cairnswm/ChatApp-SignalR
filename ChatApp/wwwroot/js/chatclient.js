@@ -91,6 +91,17 @@ connection.on('Send', (nick, forchatid, message) => {
     // TODO: Store Message in storage for when user opens chat, increment unread messages
 });
 
+// Display bulk chat messages recieved from server
+connection.on('MessageList', (forchatid, messages) => {
+    messages.forEach(function (message) {
+        if (chatid == forchatid) { // chatid is the active chat
+            appendLine(message.FromUserName, message.Text);
+        }
+    }
+    // TODO: Store Message in storage for when user opens chat, increment unread messages
+});
+
+
 // Open chat
 connection.on('Chat', (jsonstr) => {
     chatid = JSON.parse(jsonstr);
